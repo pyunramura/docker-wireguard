@@ -28,7 +28,7 @@ jobs:
       - name: Lint Yaml
         uses: ibiqlik/action-yamllint@v3
         with:
-          file_or_dir: 'docker-compose.yaml'
+          file_or_dir: 'docker-compose.yaml deployment.yaml'
           config_data: |
             extends: default
             rules:
