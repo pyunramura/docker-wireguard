@@ -1,0 +1,212 @@
+---
+name: Validate Release Ship
+
+on:
+  push:
+    paths-ignore:
+      - '.github/workflows/*'
+    branches: [ main ]
+env:
+  APP: ${{ github.repository }}
+  USER: ${{ github.repository_owner }}
+  EMAIL: ${{ github.repository_owner }}@users.noreply.github.com
+jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Lint Dockerfile
+        uses: luke142367/Docker-Lint-Action@v1.0.0
+        with:
+          target: Dockerfile
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lint Yaml
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: 'docker-compose.yaml'
+          config_data: |
+            extends: default
+            rules:
+              new-line-at-end-of-file: disable
+              trailing-spaces:
+                level: warning
+      - name: Lint Shell Script
+        uses: azohra/shell-linter@latest
+        with:
+          path: "run,/**/*.sh"
+
+  release:
+    needs: [ lint ]
+    runs-on: ubuntu-latest
+    outputs:
+          new_version: ${{ steps.bump-semver.outputs.new_version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-ecosystem/action-get-merged-pull-request@v1
+        id: get-merged-pull-request
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions-ecosystem/action-release-label@v1
+        id: release-label
+        if: ${{ steps.get-merged-pull-request.outputs.title != null }}
+        with:
+          labels: ${{ steps.get-merged-pull-request.outputs.labels }}
+
+      - uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
+        if: ${{ steps.release-label.outputs.level != null }}
+        with:
+          semver_only: true
+
+      - uses: actions-ecosystem/action-bump-semver@v1
+        id: bump-semver
+        if: ${{ steps.release-label.outputs.level != null }}
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: ${{ steps.release-label.outputs.level }}
+
+      - uses: actions-ecosystem/action-regex-match@v2
+        id: regex-match
+        if: ${{ steps.bump-semver.outputs.new_version != null }}
+        with:
+          text: ${{ steps.get-merged-pull-request.outputs.body }}
+          regex: '```release_note([\s\S]*)```'
+
+      - uses: actions-ecosystem/action-push-tag@v1
+        if: ${{ steps.bump-semver.outputs.new_version != null }}
+        with:
+          tag: ${{ steps.bump-semver.outputs.new_version }}
+          message: "${{ steps.bump-semver.outputs.new_version }}: PR #${{ steps.get-merged-pull-request.outputs.number }} ${{ steps.get-merged-pull-request.outputs.title }}"
+
+      - uses: actions/create-release@v1
+        if: ${{ steps.release-label.outputs.level == 'major' || steps.release-label.outputs.level == 'minor' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump-semver.outputs.new_version }}
+          release_name: ${{ steps.bump-semver.outputs.new_version }}
+          body: ${{ steps.regex-match.outputs.group1 }}
+
+      - uses: actions-ecosystem/action-create-comment@v1
+        if: ${{ steps.bump-semver.outputs.new_version != null }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.get-merged-pull-request.outputs.number }}
+          body: |
+            The new version [${{ steps.bump-semver.outputs.new_version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.bump-semver.outputs.new_version }}) has been released :tada:
+
+  ship:
+    needs: [ lint, release ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1 
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Extract major and minor version from semver
+        id: maj-min-version
+        shell: bash
+        run: |
+          TAG_MAJ=$(echo ${{ needs.release.outputs.new_version }} | cut -f 1 -d '.')
+          TAG_MIN=$(echo ${{ needs.release.outputs.new_version }} | cut -f 1,2 -d '.')
+          echo "::set-output name=tag_maj::$TAG_MAJ"
+          echo "::set-output name=tag_min::$TAG_MIN"
+          echo Major Version is $TAG_MAJ
+          echo Minor Version is $TAG_MIN
+
+      - name: Update repo description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}
+
+      - name: Build and push arm64
+        uses: docker/build-push-action@v2
+        if: ${{ needs.release.outputs.new_version != null }}
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          labels: |
+            name: ${{ env.APP }}
+            maintainer: ${{ env.USER }} <${{ env.EMAIL }}>
+            version: ${{ needs.release.outputs.new_version }}
+            architecture: arm64
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:latest-arm
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ needs.release.outputs.new_version }}-arm
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_maj }}-arm
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}-arm
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:latest-arm
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ needs.release.outputs.new_version }}-arm
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_maj }}-arm
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}-arm
+
+      - name: Build and push arm7
+        uses: docker/build-push-action@v2
+        if: ${{ needs.release.outputs.new_version != null }}
+        with:
+          context: .
+          platforms: linux/arm/v7
+          push: true
+          labels: |
+            name: ${{ env.APP }}
+            maintainer: ${{ env.USER }} <${{ env.EMAIL }}>
+            version: ${{ needs.release.outputs.new_version }}
+            architecture: arm7
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:latest-arm7
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ needs.release.outputs.new_version }}-arm7
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_maj }}-arm7
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}-arm7
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:latest-arm7
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ needs.release.outputs.new_version }}-arm7
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_maj }}-arm7
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}-arm7
+
+      - name: Build and push amd64
+        uses: docker/build-push-action@v2
+        if: ${{ needs.release.outputs.new_version != null }}
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          labels: |
+            name: ${{ env.APP }}
+            maintainer: ${{ env.USER }} <${{ env.EMAIL }}>
+            version: ${{ needs.release.outputs.new_version }}
+            architecture: amd64
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ needs.release.outputs.new_version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_maj }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ needs.release.outputs.new_version }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_maj }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}

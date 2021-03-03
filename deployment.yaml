@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wireguard
+  labels:
+    name: wireguard
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      name: wireguard
+  template:
+    metadata:
+      labels:
+        name: wireguard
+    spec:
+      restartPolicy: Always
+      # Recommend to leave commented. Kublet needs to have privileged flags set per node to squash error,
+      #   but container runs fine with error message.
+      # securityContext:
+      #   sysctls:
+      #   - name: net.ipv4.conf.all.src_valid_mark
+      #     value: "1"
+      containers:
+        - name: wireguard
+          image: ghcr.io/pyunramura/wireguard:latest
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add: ['NET_ADMIN']
+          ports:
+            - name: wireguard
+              containerPort: 51820
+              protocol: UDP
+          volumeMounts:
+            - name: tun
+              mountPath: /dev/net/tun
+            - mountPath: /etc/wireguard
+              name: wireguard-config
+              readOnly: true
+          resources:
+            {}
+      volumes:
+        - name: tun
+          hostPath:
+            type: 'CharDevice'
+            path: /dev/net/tun
+        - name: wireguard-config
+          secret:
+            secretName: wireguard-config
+            defaultMode: 0400
+        # - name: wireguard-config
+        #   configMap:
+        #     name: wireguard-config
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wireguard-config
+  labels:
+    name: wireguard-config
+  namespace: default
+type: Opaque
+stringData:
+  wg0.conf: | 
+    [Interface]
+    PrivateKey = "use with 'wg genkey > privatekey' "
+    Address = 10.99.0.2/32
+    DNS = 10.99.0.1
+
+    [Peer]
+    PublicKey = "use with 'wg pubkey < privatekey > publickey' on your wireguard peer"
+    AllowedIPs = 0.0.0.0/0, 10.99.0.1/32
+    Endpoint = 'your public wireguard peer':51820
