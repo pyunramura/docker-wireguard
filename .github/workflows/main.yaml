@@ -11,7 +11,7 @@ env:
   USER: ${{ github.repository_owner }}
   EMAIL: ${{ github.repository_owner }}@users.noreply.github.com
 jobs:
-  Validate:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,7 +41,7 @@ jobs:
           path: "run,/**/*.sh"
 
   release:
-    needs: [ lint ]
+    needs: [ validate ]
     runs-on: ubuntu-latest
     outputs:
           new_version: ${{ steps.bump-semver.outputs.new_version }}
@@ -103,7 +103,7 @@ jobs:
             The new version [${{ steps.bump-semver.outputs.new_version }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.bump-semver.outputs.new_version }}) has been released :tada:
 
   ship:
-    needs: [ lint, release ]
+    needs: [ validate, release ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
