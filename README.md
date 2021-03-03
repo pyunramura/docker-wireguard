@@ -21,7 +21,7 @@ A Docker container for using WireGuard with a pre-configured wireguard config fi
 **Please use the included docker-compose.yaml file for now**
 
 ## Notes
-* Be sure to mount your wireguard config file in the /etc/wireguard directory. ex:``` docker run -v $PWD/wg0.conf:/etc/wireguard```...
+* Be sure to mount your wireguard config file in the /etc/wireguard directory. ex:```docker run -v $PWD/wg0.conf:/etc/wireguard```...
 * IPv4 only. IPv6 traffic is blocked unless using ```FIREWALL=0``` but you may want to disable IPv6 on the container anyway.
 * An example [docker-compose.yml](https://github.com/pyunramura/docker-wireguard/blob/main/docker-compose.yaml) is included.
 * An example Kubernetes [deployment.yml](https://github.com/pyunramura/docker-wireguard/blob/main/deployment.yaml) is also included.
@@ -31,6 +31,7 @@ A Docker container for using WireGuard with a pre-configured wireguard config fi
 ## Credits
 Most of this container was copied from:
 * https://github.com/thrnz/docker-wireguard-pia
+
 Some bits and pieces and ideas have been borrowed from the following:
 * https://github.com/activeeos/wireguard-docker
 * https://github.com/cmulk/wireguard-docker
