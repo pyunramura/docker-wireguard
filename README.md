@@ -3,7 +3,7 @@
 A Docker container for using WireGuard with a pre-configured wireguard config file.
 
 ## Requirements
-* Ideally the host must already support WireGuard. Pre 5.6 kernels may need to have the module manually installed. If this is not possible, then a userspace implementation
+* Ideally the host must already support WireGuard. Pre 5.6 kernels may need to have the module manually installed. If this is not possible, then use ```WG_USERSPACE``` for the userspace implementation.
 
 ## Config
 | ENV Var | Function |
