@@ -7,7 +7,7 @@ on:
       - '.github/workflows/*'
     branches: [ main ]
 env:
-  APP: ${{ github.repository }}
+  APP: wireguard
   USER: ${{ github.repository_owner }}
   EMAIL: ${{ github.repository_owner }}@users.noreply.github.com
 jobs:
