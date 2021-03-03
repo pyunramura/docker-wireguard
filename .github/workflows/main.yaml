@@ -35,6 +35,8 @@ jobs:
               new-line-at-end-of-file: disable
               trailing-spaces:
                 level: warning
+              line-length:
+                max: 100
       - name: Lint Shell Script
         uses: azohra/shell-linter@latest
         with:
