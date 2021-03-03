@@ -1,41 +1,44 @@
+---
 version: '3.7'
 services:
-    vpn:
-        image: pyunramura/wireguard
-        volumes:
-            # Least intuitive
-            - config:/etc/wireguard
-            # Single wireguard config
-            - .../wg0.conf:/etc/wireguard:ro
-            # Multiple wireguard onfigs
-            - .../wg_configs:/etc/wireguard:ro
-        cap_add:
-            - NET_ADMIN
-            # SYS_MODULE might not be needed with a 5.6+ kernel?
-            - SYS_MODULE
-        # Mounting the tun device may be necessary for userspace implementations
-        devices:
-          - /dev/net/tun:/dev/net/tun
-        environment:
-            # These values are optional:
-            - LOCAL_NETWORK=192.168.1.0/24,10.0.0.0/16
-            - KEEPALIVE=25
-            - VPNDNS=8.8.8.8,8.8.4.4
-            - WG_USERSPACE=1
-            - PEER_PORT=51820
-        sysctls:
-            # wg-quick fails to set this without --privileged, so set it here instead if needed
-            - net.ipv4.conf.all.src_valid_mark=1
-            # May as well disable ipv6. Should be blocked anyway.
-            - net.ipv6.conf.default.disable_ipv6=1
-            - net.ipv6.conf.all.disable_ipv6=1
-            - net.ipv6.conf.lo.disable_ipv6=1
-        # The container has no recovery logic. Use a healthcheck to catch disconnects.
-        healthcheck:
-            test: ping -c 1 www.google.com || exit 1
-            interval: 30s
-            timeout: 10s
-            retries: 3
+  vpn:
+    image: pyunramura/wireguard
+    volumes:
+      # Least intuitive
+      - config:/etc/wireguard
+      # Single wireguard config
+      - .../wg0.conf:/etc/wireguard:ro
+      # Multiple wireguard onfigs
+      - .../wg_configs:/etc/wireguard:ro
+    cap_add:
+      - NET_ADMIN
+      # SYS_MODULE might not be needed with a 5.6+ kernel?
+      - SYS_MODULE
+    # Mounting the tun device may be necessary for userspace implementations
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      # These values are optional:
+      - LOCAL_NETWORK=192.168.1.0/24,10.0.0.0/16
+      - KEEPALIVE=25
+      - VPNDNS=8.8.8.8,8.8.4.4
+      - WG_USERSPACE=1
+      - PEER_PORT=51820
+    sysctls:
+      # wg-quick fails to set this without --privileged,
+      #so set it here instead if needed
+      - net.ipv4.conf.all.src_valid_mark=1
+      # May as well disable ipv6. Should be blocked anyway.
+      - net.ipv6.conf.default.disable_ipv6=1
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.lo.disable_ipv6=1
+    # The container has no recovery logic.
+    # Use a healthcheck to catch disconnects.
+    healthcheck:
+        test: ping -c 1 www.google.com || exit 1
+        interval: 30s
+        timeout: 10s
+        retries: 3
 
 # Example of another service sharing the VPN
 # Other services can share the VPN using 'network_mode'
@@ -44,5 +47,5 @@ services:
 #      network_mode: "service:vpn"
 
 # Don't forget to declare the config volume if you need one
-#volumes:
+# volumes:
 #    config:
