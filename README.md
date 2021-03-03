@@ -1,5 +1,7 @@
 # docker-wireguard
 
+[![Build](https://github.com/pyunramura/docker-wireguard/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/pyunramura/docker-wireguard/actions/workflows/main.yaml)
+
 A Docker container for using WireGuard with a pre-configured wireguard config file.
 
 ## Requirements
