@@ -92,7 +92,7 @@ if [ "$FIREWALL" -eq 1 ]; then
   iptables -A INPUT -i lo -j ACCEPT
 
   # Allow docker network input/output
-  for eth in ls /sys/class/net/eth*; do
+  for eth in $(find /sys/class/net -name "eth*" -type l | cut -f 5 -d '/'); do
     docker_network="$(ip -o addr show dev "$eth"|
             awk '$3 == "inet" {print $4}')"
     echo "$(date): Allowing network access to $docker_network on $eth"
