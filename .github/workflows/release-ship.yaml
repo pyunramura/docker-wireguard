@@ -6,7 +6,7 @@ name: Release Ship
 on:
   push:
     paths-ignore:
-      - '.github/'
+      - '.github/**'
       - '**/*.md'
     branches: [ main ]
 env:
