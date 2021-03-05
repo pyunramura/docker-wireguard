@@ -1,5 +1,6 @@
 ---
 name: Validate Dockerfile for Dependabot use
+# From: https://github.com/jace-ys/mobydick-action
 
 on:
   push:
