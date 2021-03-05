@@ -1,5 +1,6 @@
 ---
 name: Lint Markdown files
+# From: https://github.com/tomwhross/write-good-action
 
 on:
   push:
