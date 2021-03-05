@@ -1,0 +1,4 @@
+release/major: ['breaking/*', 'major/*', 'maj/*']
+release/minor: ['feature/*', 'feat/*', 'minor/*', 'min/*']
+release/patch: ['bug/*', 'fix/*', 'patch/*']
+chore: ['chore/*', 'deps/*', 'update/*']
