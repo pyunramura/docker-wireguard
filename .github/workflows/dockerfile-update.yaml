@@ -1,0 +1,22 @@
+name: Dockerfile Update
+# From: https://github.com/ludeeus/dockerfile-updater
+
+on:
+  schedule:
+    - cron:  '40 12 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - "**/Dockerfile"
+jobs:
+  deploy:
+    name: Update Dockerfiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update Dockerfile
+        uses: ludeeus/dockerfile-updater@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "⚓ chore(deps): update dockerfile deps."

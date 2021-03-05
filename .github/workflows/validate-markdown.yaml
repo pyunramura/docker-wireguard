@@ -1,31 +1,24 @@
 ---
-name: Lint Markdown files
+name: Validate Markdown
 # From: https://github.com/tomwhross/write-good-action
 
 on:
-  push:
-    paths:
-      - '**/*.md'
-    branches:
-      - main
   pull_request:
     paths:
       - '**/*.md'
-    branches:
-      - main
 
 jobs:
-  write_good_job:
+  validate:
     runs-on: ubuntu-latest
-    name: A job to lint Markdown files
+    name: Validate Markdown Files
     steps:
     - uses: actions/checkout@v2
 
-    - name: write-good action step
+    - name: write-good action
       id: write-good
       uses: tomwhross/write-good-action@v1.2
 
-    - name: Get the write-good output
+    - name: Capture write-good output
       run: echo "${{ steps.write-good.outputs.result }}"
 
     - name: Post comment
