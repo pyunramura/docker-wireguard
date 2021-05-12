@@ -8,7 +8,7 @@ jobs:
   label:
     runs-on: ubuntu-20.04
     steps:
-      - uses: TimonVS/pr-labeler-action@v3
+      - uses: TimonVS/pr-labeler-action@v3.1.0
         with:
           configuration-path: .github/label_pr_config.yaml
         env:
