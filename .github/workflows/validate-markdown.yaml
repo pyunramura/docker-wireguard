@@ -16,7 +16,7 @@ jobs:
 
     - name: write-good action
       id: write-good
-      uses: tomwhross/write-good-action@v1.2
+      uses: tomwhross/write-good-action@v1.4
 
     - name: Capture write-good output
       run: echo "${{ steps.write-good.outputs.result }}"
