@@ -19,7 +19,7 @@ jobs:
     outputs:
           new_version: ${{ steps.bump-semver.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
 
       - uses: actions-ecosystem/action-get-merged-pull-request@v1
         id: get-merged-pull-request
@@ -79,7 +79,7 @@ jobs:
     needs: [ release ]
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
