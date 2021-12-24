@@ -1,16 +1,16 @@
+---
 name: Dockerfile Update
 # From: https://github.com/ludeeus/dockerfile-updater
-
 on:
+  workflow_dispatch:
   schedule:
-    - cron:  '40 16 * * *'
-  # push:
-  #   branches: [ main ]
-  #   paths:
-  #     - "**/Dockerfile"
+    - cron: '45 2 * * *'
+# push:
+#   branches: [main]
+#   paths:
+#     - "**/Dockerfile"
 jobs:
-  deploy:
-    name: Update Dockerfiles
+  update-dockerfile-deps:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
