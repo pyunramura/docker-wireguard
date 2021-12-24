@@ -1,6 +1,6 @@
 # [docker-wireguard](https://github.com/pyunramura/docker-wireguard)
 
-[![Build](https://github.com/pyunramura/docker-wireguard/actions/workflows/release-ship.yaml/badge.svg)](https://github.com/pyunramura/docker-wireguard/actions/workflows/release-ship.yaml)
+[![Release Ship](https://github.com/pyunramura/docker-wireguard/actions/workflows/semver-build-push-release.yaml/badge.svg)](https://github.com/pyunramura/docker-wireguard/actions/workflows/semver-build-push-release.yaml) [![Validate Dockerfile](https://github.com/pyunramura/docker-wireguard/actions/workflows/validate-dockerfile.yaml/badge.svg)](https://github.com/pyunramura/docker-wireguard/actions/workflows/validate-dockerfile.yaml)
 
 A Docker container for using WireGuard with a pre-configured wireguard config file.
 
