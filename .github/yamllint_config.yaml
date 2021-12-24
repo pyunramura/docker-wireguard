@@ -1,5 +1,6 @@
-ignore: |
-  .github/
+---
+# ignore: |
+#   .github/
 extends: default
 rules:
   truthy:

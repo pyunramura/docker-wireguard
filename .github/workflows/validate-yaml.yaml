@@ -3,16 +3,15 @@ name: Validate Yaml
 # From: https://github.com/ibiqlik/action-yamllint
 
 on:
-  # push:
-  #   branches: [ main ]
-  #   paths:
-  #     - '.github/**'
-    
   pull_request:
     paths:
-      - '!.github/**'
-      - '**/*.yaml'
       - '**/*.yml'
+      - '**/*.yaml'
+# push:
+#   branches: [ main ]
+#   paths:
+#     - '.github/**'
+
 jobs:
   validate:
     runs-on: ubuntu-latest
