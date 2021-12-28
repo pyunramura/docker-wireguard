@@ -18,7 +18,7 @@ jobs:
         #   fetch-depth: 0
 
       - name: Lint Shell Script
-        uses: reviewdog/action-shellcheck@v1.12
+        uses: reviewdog/action-shellcheck@v1.13
         with:
           pattern: "run"
           level: "warning"
