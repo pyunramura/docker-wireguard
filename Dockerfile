@@ -1,6 +1,6 @@
 FROM alpine:3.15
 RUN apk add --no-cache \
-    bash=5.1.8-r0 \
+    bash=5.1.16-r0 \
     ip6tables=1.8.7-r1 \
     iptables=1.8.7-r1 \
     wireguard-tools=1.0.20210914-r0
