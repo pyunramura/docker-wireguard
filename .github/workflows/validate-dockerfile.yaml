@@ -11,7 +11,7 @@ jobs:
   validate:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3.0.0
+      - uses: actions/checkout@v3.0.1
 
       - name: Lint Dockerfile
         uses: luke142367/Docker-Lint-Action@v1.1.1
@@ -24,7 +24,7 @@ jobs:
     needs: [validate]
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3.0.0
+      - uses: actions/checkout@v3.0.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
