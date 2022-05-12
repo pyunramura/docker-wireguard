@@ -88,7 +88,7 @@ jobs:
         run: echo "::set-output name=date::$(date -u --rfc-3339=seconds | sed 's/ /T/')"
 
       - name: Build and push multiarch
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         if: ${{ steps.bump-semver.outputs.new_version }}
         with:
           context: .
@@ -113,7 +113,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ env.APP }}:${{ steps.maj-min-version.outputs.tag_min }}
 
       - name: Build amd64
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         if: ${{ steps.bump-semver.outputs.new_version }}
         with:
           context: .
@@ -129,7 +129,7 @@ jobs:
             org.label-schema.vcs-url = https://github.com/${{ github.repository }}
 
       - name: Build arm64
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         if: ${{ steps.bump-semver.outputs.new_version }}
         with:
           context: .
@@ -145,7 +145,7 @@ jobs:
             org.label-schema.vcs-url = https://github.com/${{ github.repository }}
 
       - name: Build armv7
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         if: ${{ steps.bump-semver.outputs.new_version }}
         with:
           context: .
