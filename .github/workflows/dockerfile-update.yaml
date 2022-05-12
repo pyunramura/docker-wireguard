@@ -13,7 +13,7 @@ jobs:
   update-dockerfile-deps:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3.0.0
+      - uses: actions/checkout@v3.0.2
 
       - name: Update Dockerfile
         uses: ludeeus/dockerfile-updater@main
