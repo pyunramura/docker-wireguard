@@ -169,7 +169,7 @@ jobs:
           done
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.APP }}-docker-images
           path: /tmp/${{ env.APP }}*.tar.gz
