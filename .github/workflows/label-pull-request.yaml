@@ -16,4 +16,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: kentaro-m/auto-assign-action@v1.2.1
+      - uses: kentaro-m/auto-assign-action@v1.2.2
