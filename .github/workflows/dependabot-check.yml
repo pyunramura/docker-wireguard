@@ -13,6 +13,6 @@ jobs:
   validate:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Mobydick Validation
         uses: jace-ys/mobydick-action@v0.1.0
