@@ -3,7 +3,7 @@ RUN apk add --no-cache \
     bash=5.2.12-r0 \
     ip6tables=1.8.8-r2 \
     iptables=1.8.8-r2 \
-    wireguard-tools=1.0.20210914-r0
+    wireguard-tools=1.0.20210914-r1
 ENV LOCAL_NETWORK= \
     KEEPALIVE=0 \
     VPNDNS= \
