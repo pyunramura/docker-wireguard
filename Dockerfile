@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM alpine:3.12
 RUN apk add --no-cache \
     bash=5.2.15-r0 \
     ip6tables=1.8.8-r2 \
